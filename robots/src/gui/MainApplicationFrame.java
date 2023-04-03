@@ -2,6 +2,8 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JDesktopPane;
@@ -16,7 +18,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import log.Logger;
 
-public class MainApplicationFrame extends JFrame {
+public class MainApplicationFrame extends JFrame implements ActionListener{
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     public MainApplicationFrame() {
@@ -61,6 +63,7 @@ public class MainApplicationFrame extends JFrame {
         JMenuBar menuBar = new JMenuBar();
         menuBar.add(generateLookAndFeelMenu());
         menuBar.add(generateTestMenu());
+        menuBar.add(generateQuitMenu());
         return menuBar;
     }
 
@@ -71,6 +74,27 @@ public class MainApplicationFrame extends JFrame {
         menu.add(generateSystemLookAndFeelItem());
         menu.add(generateCrossplatformLookAndFeelItem());
         return menu;
+    }
+
+    private JMenu generateQuitMenu() {
+        JMenu menu = new JMenu("Выход");
+        menu.setMnemonic(KeyEvent.VK_V);
+        menu.getAccessibleContext().setAccessibleDescription("Выход из приложения");
+        menu.add(generateQuitMenuItem());
+        return menu;
+    }
+
+    private JMenuItem generateQuitMenuItem() {
+        JMenuItem item = new JMenuItem("Выход из приложения", KeyEvent.VK_S);
+        item.addActionListener(this);
+        return item;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        this.setVisible(false);
+        this.dispose();
+        System.exit(0);
     }
 
     private JMenuItem generateSystemLookAndFeelItem() {
