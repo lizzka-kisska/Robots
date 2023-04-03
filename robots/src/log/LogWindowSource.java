@@ -1,6 +1,5 @@
 package log;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -8,20 +7,20 @@ public class LogWindowSource {
     private final int m_iQueueLength; //размер массива
 
     private final ConcurrentLinkedQueue<LogEntry> m_messages; //массив списков типа LogEntry(принимает уровень лога, соо)
-    private final ArrayList<LogChangeListener> m_listeners; //массив списков типа касса в котором метод onLogChanged()
+    private final ConcurrentLinkedQueue<LogChangeListener> m_listeners; //массив списков типа касса в котором метод onLogChanged()
     private volatile LogChangeListener[] m_activeListeners; //volatile - для многопоточности, чтобы операция была атомарная,
     // и инфа не заносилась в кэш
 
     public LogWindowSource(int iQueueLength) {
         m_iQueueLength = iQueueLength;
         m_messages = new ConcurrentLinkedQueue<>(); //создаем новый массив const = длины массива 100
-        m_listeners = new ArrayList<>(); //создаем массив слушателей
+        m_listeners = new ConcurrentLinkedQueue<>(); //создаем массив слушателей
     }
 
     public void registerListener(LogChangeListener listener) {
         synchronized (m_listeners) //запрещаем вход в эту часть кода и в массив слушателей >1 потокам
         {
-            m_listeners.add(listener); //добавляем в массив слушателей слушателя
+            m_listeners.offer(listener); //добавляем в массив слушателей слушателя
             m_activeListeners = null; //активных слуш видимо больше нет, так как мы их занесли в массив
         }
     }
