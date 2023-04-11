@@ -5,6 +5,9 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.Locale;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -16,15 +19,23 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import localization.ControlLang;
 import log.Logger;
 
-public class MainApplicationFrame extends JFrame implements ActionListener{
+public class MainApplicationFrame extends JFrame implements ActionListener, PropertyChangeListener {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private final ControlLang control = ControlLang.getInstance();
+    private static Locale currentLang = Locale.getDefault();
+    private static JMenu switchLang, lookAndFeelMenu, testMenu, quitMenu;
+    private static JMenuItem switchLangRu, switchLangEn, quitMenuItem, systemLookAndFeelItem,
+            crossplatformLookAndFeelItem, logMessagelItem;
 
     public MainApplicationFrame() {
+        control.addLocaleChangeListener(this);
+
         setContentPane(desktopPane);
         setFrameSize();
-        addWindow(createLogWindow());
+        addWindow(createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL")));
         addWindow(createGameWindow());
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -38,13 +49,13 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
                 screenSize.height);
     }
 
-    private LogWindow createLogWindow() {
+    private LogWindow createLogWindow(String text) {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.setLocation(10, 10);
         logWindow.setSize(300, 800);
         setMinimumSize(logWindow.getSize());
         logWindow.pack();
-        Logger.debug("Протокол работает");
+        Logger.debug(text);
         return logWindow;
     }
 
@@ -61,31 +72,59 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
 
     private JMenuBar generateMenuBar() {
         JMenuBar menuBar = new JMenuBar();
-        menuBar.add(generateLookAndFeelMenu());
-        menuBar.add(generateTestMenu());
-        menuBar.add(generateQuitMenu());
+        switchLang = generateSwitchLang();
+        lookAndFeelMenu = generateLookAndFeelMenu();
+        testMenu = generateTestMenu();
+        quitMenu = generateQuitMenu();
+        menuBar.add(switchLang);
+        menuBar.add(lookAndFeelMenu);
+        menuBar.add(testMenu);
+        menuBar.add(quitMenu);
         return menuBar;
     }
 
-    private JMenu generateLookAndFeelMenu() {
-        JMenu menu = new JMenu("Режим отображения");
+    private JMenu generateSwitchLang() {
+        JMenu menu = new JMenu(control.getLocale("FRAME_SWITCH_LANG"));
         menu.setMnemonic(KeyEvent.VK_V);
-        menu.getAccessibleContext().setAccessibleDescription("Управление режимом отображения приложения");
-        menu.add(generateSystemLookAndFeelItem());
-        menu.add(generateCrossplatformLookAndFeelItem());
+        menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_SWITCH_LANG"));
+        switchLangRu = generateSwitchLangRuItem();
+        switchLangEn = generateSwitchLangEnItem();
+        menu.add(switchLangRu);
+        menu.add(switchLangEn);
         return menu;
     }
 
+    private JMenuItem generateSwitchLangRuItem() {
+        JMenuItem item = new JMenuItem(control.getLocale("LANG_RU"), KeyEvent.VK_S);
+        item.setMnemonic(KeyEvent.VK_V);
+        item.addActionListener((event) -> {
+            currentLang = Locale.getDefault();
+            control.setLocale(currentLang);
+        });
+        return item;
+    }
+
+    private JMenuItem generateSwitchLangEnItem() {
+        JMenuItem item = new JMenuItem(control.getLocale("LANG_EN"), KeyEvent.VK_S);
+        item.setMnemonic(KeyEvent.VK_V);
+        item.addActionListener((event) -> {
+            currentLang = Locale.ENGLISH;
+            control.setLocale(currentLang);
+        });
+        return item;
+    }
+
     private JMenu generateQuitMenu() {
-        JMenu menu = new JMenu("Выход");
+        JMenu menu = new JMenu(control.getLocale("FRAME_QUIT"));
         menu.setMnemonic(KeyEvent.VK_V);
-        menu.getAccessibleContext().setAccessibleDescription("Выход из приложения");
-        menu.add(generateQuitMenuItem());
+        menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_APP_QUIT"));
+        quitMenuItem = generateQuitMenuItem();
+        menu.add(quitMenuItem);
         return menu;
     }
 
     private JMenuItem generateQuitMenuItem() {
-        JMenuItem item = new JMenuItem("Выход из приложения", KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_APP_QUIT"), KeyEvent.VK_S);
         item.addActionListener(this);
         return item;
     }
@@ -97,8 +136,19 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
         System.exit(0);
     }
 
+    private JMenu generateLookAndFeelMenu() {
+        JMenu menu = new JMenu(control.getLocale("FRAME_DISPLAY_MODE"));
+        menu.setMnemonic(KeyEvent.VK_V);
+        menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_MANAGE_DISPLAY_MODE"));
+        systemLookAndFeelItem = generateSystemLookAndFeelItem();
+        crossplatformLookAndFeelItem = generateCrossplatformLookAndFeelItem();
+        menu.add(systemLookAndFeelItem);
+        menu.add(crossplatformLookAndFeelItem);
+        return menu;
+    }
+
     private JMenuItem generateSystemLookAndFeelItem() {
-        JMenuItem item = new JMenuItem("Системная схема", KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_SYS_SCHEME"), KeyEvent.VK_S);
         item.addActionListener((event) -> {
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             this.invalidate();
@@ -107,7 +157,7 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
     }
 
     private JMenuItem generateCrossplatformLookAndFeelItem() {
-        JMenuItem item = new JMenuItem("Универсальная схема", KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_UNI_SCHEME"), KeyEvent.VK_S);
         item.addActionListener((event) -> {
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             this.invalidate();
@@ -116,17 +166,18 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
     }
 
     private JMenu generateTestMenu() {
-        JMenu menu = new JMenu("Тесты");
+        JMenu menu = new JMenu(control.getLocale("FRAME_TESTS"));
         menu.setMnemonic(KeyEvent.VK_T);
-        menu.getAccessibleContext().setAccessibleDescription("Тестовые команды");
-        menu.add(generateLogMessagelItem());
+        menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_TEST_COMMANDS"));
+        logMessagelItem = generateLogMessagelItem();
+        menu.add(logMessagelItem);
         return menu;
     }
 
     private JMenuItem generateLogMessagelItem() {
-        JMenuItem item = new JMenuItem("Сообщение в лог", KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_MES_LOG"), KeyEvent.VK_S);
         item.addActionListener((event) -> {
-            Logger.debug("Новая строка");
+            Logger.debug(control.getLocale("LOG_MES"));
         });
         return item;
     }
@@ -139,5 +190,33 @@ public class MainApplicationFrame extends JFrame implements ActionListener{
                  | IllegalAccessException | UnsupportedLookAndFeelException e) {
             // just ignore
         }
+    }
+
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (control.equals(evt.getSource())) {
+            if (ControlLang.PROPERTY_LANG.equals(evt.getPropertyName())) {
+                changeMainFrame();
+            }
+        }
+    }
+
+    private void changeMainFrame() {
+        createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
+
+        switchLang.setText(control.getLocale("FRAME_SWITCH_LANG"));
+        lookAndFeelMenu.setText(control.getLocale("FRAME_DISPLAY_MODE"));
+        testMenu.setText(control.getLocale("FRAME_TESTS"));
+        quitMenu.setText(control.getLocale("FRAME_QUIT"));
+
+        switchLangRu.setText(control.getLocale("LANG_RU"));
+        switchLangEn.setText(control.getLocale("LANG_EN"));
+
+        quitMenuItem.setText(control.getLocale("FRAME_APP_QUIT"));
+
+        systemLookAndFeelItem.setText(control.getLocale("FRAME_SYS_SCHEME"));
+        crossplatformLookAndFeelItem.setText(control.getLocale("FRAME_UNI_SCHEME"));
+
+        logMessagelItem.setText(control.getLocale("FRAME_MES_LOG"));
     }
 }
