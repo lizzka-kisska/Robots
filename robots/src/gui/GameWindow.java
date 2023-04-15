@@ -10,6 +10,9 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 
 public class GameWindow extends JInternalFrame implements PropertyChangeListener {
+    /**
+     * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
+     */
     private static final ControlLang control = ControlLang.getInstance();
 
     public GameWindow() {
@@ -22,6 +25,11 @@ public class GameWindow extends JInternalFrame implements PropertyChangeListener
         pack();
     }
 
+    /**
+     * Метод, который меняет регариует, если изменилась локаль.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (control.equals(evt.getSource())) {

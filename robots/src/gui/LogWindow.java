@@ -17,6 +17,9 @@ import log.LogWindowSource;
 public class LogWindow extends JInternalFrame implements LogChangeListener, PropertyChangeListener {
     private LogWindowSource m_logSource;
     private TextArea m_logContent;
+    /**
+     * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
+     */
     private static final ControlLang control = ControlLang.getInstance();
 
     public LogWindow(LogWindowSource logSource) {
@@ -56,7 +59,11 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Prop
             super.doDefaultCloseAction();
         }
     }
-
+    /**
+     * Метод, который меняет регариует, если изменилась локаль.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (control.equals(evt.getSource())) {

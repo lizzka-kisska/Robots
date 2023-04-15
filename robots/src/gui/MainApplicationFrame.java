@@ -24,12 +24,22 @@ import log.Logger;
 
 public class MainApplicationFrame extends JFrame implements ActionListener, PropertyChangeListener {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    /**
+     * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
+     */
     private final ControlLang control = ControlLang.getInstance();
     private static Locale currentLang = Locale.getDefault();
+    /**
+     * Поля методов, в которых используется локаль
+     */
     private static JMenu switchLang, lookAndFeelMenu, testMenu, quitMenu;
     private static JMenuItem switchLangRu, switchLangEn, quitMenuItem, systemLookAndFeelItem,
             crossplatformLookAndFeelItem, logMessagelItem;
 
+    /**
+     * Конструктор класса создает главное окно приложения,
+     * а также подписывается на изменение локали через метод addLocaleChangeListener.
+     */
     public MainApplicationFrame() {
         control.addLocaleChangeListener(this);
 
@@ -129,6 +139,10 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
         return item;
     }
 
+    /**
+     * Метод закрытия окна и свобождение используемых ресурсов, если была нажата соответствующая кнопка.
+     * @param e the event to be processed
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         this.setVisible(false);
@@ -186,12 +200,17 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
         try {
             UIManager.setLookAndFeel(className);
             SwingUtilities.updateComponentTreeUI(this);
-        } catch (ClassNotFoundException | InstantiationException
-                 | IllegalAccessException | UnsupportedLookAndFeelException e) {
-            // just ignore
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                 UnsupportedLookAndFeelException e) {
+            Logger.debug(e.toString());
         }
     }
 
+    /**
+     * Метод, который меняет регариует, если изменилась локаль.
+     * @param evt A PropertyChangeEvent object describing the event source
+     *          and the property that has changed.
+     */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
         if (control.equals(evt.getSource())) {
@@ -201,9 +220,10 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
         }
     }
 
+    /**
+     * Метод, устанавливающий текст в каждое поле, в котором используется локаль.
+     */
     private void changeMainFrame() {
-        createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
-
         switchLang.setText(control.getLocale("FRAME_SWITCH_LANG"));
         lookAndFeelMenu.setText(control.getLocale("FRAME_DISPLAY_MODE"));
         testMenu.setText(control.getLocale("FRAME_TESTS"));
