@@ -3,9 +3,15 @@ package logic;
 public class Robot {
     public final double maxVelocity = 0.1;
     public final double maxAngularVelocity = 0.001;
+    public final double duration = 10;
     public volatile double positionX;
     public volatile double positionY;
     public volatile double direction;
+
+    public double angle = 0;
+
+    public double velocity = maxVelocity;
+    public double angularVelocity = 0;
 
     public Robot(double robotPositionX, double robotPositionY, double robotDirection) {
         this.positionX = robotPositionX;
@@ -25,63 +31,50 @@ public class Robot {
         return asNormalizedRadians(Math.atan2(diffY, diffX));
     }
 
-    private double asNormalizedRadians(double angle) {
-        while (angle < 0) {
-            angle += 2 * Math.PI;
-        }
-        while (angle >= 2 * Math.PI) {
-            angle -= 2 * Math.PI;
-        }
-        return angle;
+    public double asNormalizedRadians(double angle) {
+        return (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
     }
 
     public double angularVelocity(double angleToTarget) {
-        double angularVelocity = 0;
-        if (angleToTarget > direction) {
-            angularVelocity = maxAngularVelocity;
-        }
-        if (angleToTarget < direction) {
-            angularVelocity = -maxAngularVelocity;
+        double angularVelocity;
+        if (Math.abs(direction - angleToTarget) < 10e-7) {
+            angularVelocity = 0;
+        } else if (direction >= Math.PI) {
+            if (direction - Math.PI < angleToTarget && angleToTarget < direction)
+                angularVelocity = -maxAngularVelocity;
+            else
+                angularVelocity = maxAngularVelocity;
+        } else {
+            if (direction < angleToTarget && angleToTarget < direction + Math.PI)
+                angularVelocity = maxAngularVelocity;
+            else
+                angularVelocity = -maxAngularVelocity;
         }
         return angularVelocity;
+
+
     }
 
-    private static double applyLimits(double value, double min, double max) {
-        if (value < min)
-            return min;
-        if (value > max)
-            return max;
-        return value;
+    private static double applyLimits(double value, double max) {
+        return Math.min(Math.max(value, 0), max);
     }
 
-    private double updateXCoordinate(double velocity, double angularVelocity, double duration) {
-        double newX = positionX + velocity / angularVelocity *
-                (Math.sin(direction + angularVelocity * duration) -
-                        Math.sin(direction));
-        if (!Double.isFinite(newX)) {
-            newX = positionX + velocity * duration * Math.cos(direction);
-        }
-        return newX;
-    }
 
-    private double updateYCoordinate(double velocity, double angularVelocity, double duration) {
-        double newY = positionY - velocity / angularVelocity *
-                (Math.cos(direction + angularVelocity * duration) -
-                        Math.cos(direction));
-        if (!Double.isFinite(newY)) {
-            newY = positionY + velocity * duration * Math.sin(direction);
-        }
-        return newY;
-    }
-
-    public void moveRobot(double velocity, double angularVelocity, double duration) {
-        velocity = applyLimits(velocity, 0, maxVelocity);
-        angularVelocity = applyLimits(angularVelocity, -maxAngularVelocity, maxAngularVelocity);
-        double newX = updateXCoordinate(velocity, angularVelocity, duration);
-        double newY = updateYCoordinate(velocity, angularVelocity, duration);
+    public void moveRobot(int width, int height) {
+        velocity = applyLimits(velocity, maxVelocity);
+        double newDirection = asNormalizedRadians(direction + Math.min(angle, angularVelocity) * duration);
+        direction = newDirection;
+        double newX = positionX + velocity * duration * Math.cos(direction);
+        double newY = positionY + velocity * duration * Math.sin(direction);
         positionX = newX;
         positionY = newY;
-        double newDirection = asNormalizedRadians(direction + angularVelocity * duration);
-        direction = newDirection;
+        if (width != 0) {
+            newX = applyLimits(positionX, width);
+            positionX = newX;
+        }
+        if (height != 0) {
+            newY = applyLimits(positionY, height);
+            positionY = newY;
+        }
     }
 }

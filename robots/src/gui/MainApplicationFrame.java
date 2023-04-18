@@ -2,27 +2,17 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Locale;
-
-import javax.swing.JDesktopPane;
-import javax.swing.JFrame;
-import javax.swing.JInternalFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import java.awt.event.*;
+import javax.swing.*;
 
 import localization.ControlLang;
 import log.Logger;
 
-public class MainApplicationFrame extends JFrame implements ActionListener, PropertyChangeListener {
+public class MainApplicationFrame extends JFrame implements PropertyChangeListener {
     private final JDesktopPane desktopPane = new JDesktopPane();
     /**
      * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
@@ -42,22 +32,36 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
      */
     public MainApplicationFrame() {
         control.addLocaleChangeListener(this);
-
         setContentPane(desktopPane);
-        setFrameSize();
         addWindow(createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL")));
         addWindow(createGameWindow());
         setJMenuBar(generateMenuBar());
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+                              @Override
+                              public void windowClosing(WindowEvent e) {
+                                  Object[] options = {
+                                          control.getLocale("WINDOW_CLOSING_OPTION1"),
+                                          control.getLocale("WINDOW_CLOSING_OPTION2")
+                                  };
+                                  int choice = JOptionPane.showOptionDialog(
+                                          e.getWindow(),
+                                          control.getLocale("APP_QUIT_OPTION_DIALOG_MES"),
+                                          control.getLocale("APP_QUIT_OPTION_DIALOG_TITLE"),
+                                          JOptionPane.YES_NO_OPTION,
+                                          JOptionPane.QUESTION_MESSAGE,
+                                          null,
+                                          options,
+                                          options[0]);
+                                  if (choice == 0) {
+                                      e.getWindow().setVisible(false);
+                                      System.exit(0);
+                                  }
+                              }
+                          }
+        );
     }
 
-    private void setFrameSize() {
-        int inset = 50;
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-                screenSize.width,
-                screenSize.height);
-    }
 
     private LogWindow createLogWindow(String text) {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
@@ -71,6 +75,7 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
 
     private GameWindow createGameWindow() {
         GameWindow gameWindow = new GameWindow();
+        gameWindow.setLocation(400, 10);
         gameWindow.setSize(400, 400);
         return gameWindow;
     }
@@ -133,22 +138,15 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
         return menu;
     }
 
+
     private JMenuItem generateQuitMenuItem() {
         JMenuItem item = new JMenuItem(control.getLocale("FRAME_APP_QUIT"), KeyEvent.VK_S);
-        item.addActionListener(this);
+        item.addActionListener((event) ->
+                dispatchEvent(new WindowEvent(MainApplicationFrame.this, WindowEvent.WINDOW_CLOSING))
+        );
         return item;
     }
 
-    /**
-     * Метод закрытия окна и свобождение используемых ресурсов, если была нажата соответствующая кнопка.
-     * @param e the event to be processed
-     */
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        this.setVisible(false);
-        this.dispose();
-        System.exit(0);
-    }
 
     private JMenu generateLookAndFeelMenu() {
         JMenu menu = new JMenu(control.getLocale("FRAME_DISPLAY_MODE"));
@@ -208,8 +206,9 @@ public class MainApplicationFrame extends JFrame implements ActionListener, Prop
 
     /**
      * Метод, который меняет регариует, если изменилась локаль.
+     *
      * @param evt A PropertyChangeEvent object describing the event source
-     *          and the property that has changed.
+     *            and the property that has changed.
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {

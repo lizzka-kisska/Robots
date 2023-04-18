@@ -59,9 +59,10 @@ public class GameVisualizer extends JPanel {
             return;
         }
         double angleToTarget = robot.angleToTarget(target.positionX, target.positionY, robot.positionX, robot.positionY);
-        double angularVelocity = robot.angularVelocity(angleToTarget);
-
-        robot.moveRobot(robot.maxVelocity, angularVelocity, 10);
+        double newAngle = robot.asNormalizedRadians(angleToTarget - robot.direction);
+        robot.angularVelocity = robot.angularVelocity(angleToTarget);
+        robot.angle = newAngle;
+        robot.moveRobot(getWidth(), getHeight());
     }
 
     private static int round(double value) {
