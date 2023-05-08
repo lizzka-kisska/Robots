@@ -1,16 +1,16 @@
 package logic;
 
 public class Target {
-    public volatile int positionX;
-    public volatile int positionY;
+    public volatile int xCoordinate;
+    public volatile int yCoordinate;
 
-    public Target(int targetPositionX, int targetPositionY) {
-        this.positionX = targetPositionX;
-        this.positionY = targetPositionY;
+    public Target(int targetXCoordinate, int targetYCoordinate) {
+        this.xCoordinate = targetXCoordinate;
+        this.yCoordinate = targetYCoordinate;
     }
 
     public void setTargetPosition(int x, int y) {
-        positionX = x;
-        positionY = y;
+        xCoordinate = x;
+        yCoordinate = y;
     }
 }

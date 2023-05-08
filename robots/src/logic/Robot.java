@@ -4,30 +4,31 @@ public class Robot {
     public final double maxVelocity = 0.1;
     public final double maxAngularVelocity = 0.001;
     public final double duration = 10;
-    public volatile double positionX;
-    public volatile double positionY;
+    public volatile double xCoordinate;
+    public volatile double yCoordinate;
     public volatile double direction;
 
     public double angle = 0;
 
     public double velocity = maxVelocity;
     public double angularVelocity = 0;
+    public double angleToTarget = 0;
 
-    public Robot(double robotPositionX, double robotPositionY, double robotDirection) {
-        this.positionX = robotPositionX;
-        this.positionY = robotPositionY;
+    public Robot(double robotXCoordinate, double robotYCoordinate, double robotDirection) {
+        this.xCoordinate = robotXCoordinate;
+        this.yCoordinate = robotYCoordinate;
         this.direction = robotDirection;
     }
 
-    public double distanceToTarget(double targetPositionX, double targetPositionY, double robotPositionX, double robotPositionY) {
-        double diffX = targetPositionX - robotPositionX;
-        double diffY = targetPositionY - robotPositionY;
+    public double distanceToTarget(double targetXCoordinate, double targetYCoordinate) {
+        double diffX = targetXCoordinate - xCoordinate;
+        double diffY = targetYCoordinate - yCoordinate;
         return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
-    public double angleToTarget(double targetPositionX, double targetPositionY, double robotPositionX, double robotPositionY) {
-        double diffX = targetPositionX - robotPositionX;
-        double diffY = targetPositionY - robotPositionY;
+    public double getAngleToTarget(double targetXCoordinate, double targetYCoordinate) {
+        double diffX = targetXCoordinate - xCoordinate;
+        double diffY = targetYCoordinate - yCoordinate;
         return asNormalizedRadians(Math.atan2(diffY, diffX));
     }
 
@@ -35,8 +36,7 @@ public class Robot {
         return (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
     }
 
-    public double angularVelocity(double angleToTarget) {
-        double angularVelocity;
+    public void updateAngularVelocity(double angleToTarget) {
         if (Math.abs(direction - angleToTarget) < 10e-7) {
             angularVelocity = 0;
         } else if (direction >= Math.PI) {
@@ -50,7 +50,6 @@ public class Robot {
             else
                 angularVelocity = -maxAngularVelocity;
         }
-        return angularVelocity;
 
 
     }
@@ -60,21 +59,42 @@ public class Robot {
     }
 
 
-    public void moveRobot(int width, int height) {
+    public void moveRobot(int width, int height, double targetXCoordinate, double targetYCoordinate) {
+        if (reachedTarget(targetXCoordinate, targetYCoordinate)) {
+            return;
+        }
+        updateAngle(targetXCoordinate, targetYCoordinate);
+        updateAngularVelocity(angleToTarget);
         velocity = applyLimits(velocity, maxVelocity);
-        double newDirection = asNormalizedRadians(direction + Math.min(angle, angularVelocity) * duration);
-        direction = newDirection;
-        double newX = positionX + velocity * duration * Math.cos(direction);
-        double newY = positionY + velocity * duration * Math.sin(direction);
-        positionX = newX;
-        positionY = newY;
+        updateDirection();
+        updateCoordinates(width, height);
+    }
+
+    private void updateCoordinates(int width, int height) {
+        double newXCoordinate = xCoordinate + velocity * duration * Math.cos(direction);
+        double newYCoordinate = yCoordinate + velocity * duration * Math.sin(direction);
         if (width != 0) {
-            newX = applyLimits(positionX, width);
-            positionX = newX;
+            newXCoordinate = applyLimits(newXCoordinate, width);
         }
         if (height != 0) {
-            newY = applyLimits(positionY, height);
-            positionY = newY;
+            newYCoordinate = applyLimits(newYCoordinate, height);
         }
+        xCoordinate = newXCoordinate;
+        yCoordinate = newYCoordinate;
     }
+
+    private void updateDirection() {
+        double newDirection = asNormalizedRadians(direction + Math.min(angle, angularVelocity) * duration);
+        direction = newDirection;
+    }
+
+    private void updateAngle(double targetXCoordinate, double targetYCoordinate) {
+        angleToTarget = getAngleToTarget(targetXCoordinate, targetYCoordinate);
+        angle = asNormalizedRadians(angleToTarget - direction);
+    }
+
+    private boolean reachedTarget(double targetXCoordinate, double targetYCoordinate) {
+        return distanceToTarget(targetXCoordinate, targetYCoordinate) < 0.5;
+    }
+
 }

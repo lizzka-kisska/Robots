@@ -54,15 +54,8 @@ public class GameVisualizer extends JPanel {
 
 
     protected void onModelUpdateEvent() {
-        if (robot.distanceToTarget(target.positionX, target.positionY,
-                robot.positionX, robot.positionY) < 0.5) {
-            return;
-        }
-        double angleToTarget = robot.angleToTarget(target.positionX, target.positionY, robot.positionX, robot.positionY);
-        double newAngle = robot.asNormalizedRadians(angleToTarget - robot.direction);
-        robot.angularVelocity = robot.angularVelocity(angleToTarget);
-        robot.angle = newAngle;
-        robot.moveRobot(getWidth(), getHeight());
+        robot.moveRobot(getWidth(), getHeight(),
+                target.xCoordinate, target.yCoordinate);
     }
 
     private static int round(double value) {
@@ -73,8 +66,8 @@ public class GameVisualizer extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        drawRobot(g2d, round(robot.positionX), round(robot.positionY), robot.direction);
-        drawTarget(g2d, target.positionX, target.positionY);
+        drawRobot(g2d, round(robot.xCoordinate), round(robot.yCoordinate), robot.direction);
+        drawTarget(g2d, target.xCoordinate, target.yCoordinate);
     }
 
     private static void fillOval(Graphics g, int centerX, int centerY, int diam1, int diam2) {
@@ -86,8 +79,8 @@ public class GameVisualizer extends JPanel {
     }
 
     private void drawRobot(Graphics2D g, int x, int y, double direction) {
-        int robotCenterX = round(robot.positionX);
-        int robotCenterY = round(robot.positionY);
+        int robotCenterX = round(robot.xCoordinate);
+        int robotCenterY = round(robot.yCoordinate);
         AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY);
         g.setTransform(t);
         g.setColor(Color.MAGENTA);
