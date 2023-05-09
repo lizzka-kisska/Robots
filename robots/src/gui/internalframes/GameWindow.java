@@ -1,5 +1,6 @@
-package gui;
+package gui.internalframes;
 
+import gui.GameVisualizer;
 import localization.ControlLang;
 
 import java.awt.BorderLayout;

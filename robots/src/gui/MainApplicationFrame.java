@@ -7,6 +7,8 @@ import java.util.Locale;
 import java.awt.event.*;
 import javax.swing.*;
 
+import gui.internalframes.GameWindow;
+import gui.internalframes.LogWindow;
 import localization.ControlLang;
 import log.Logger;
 import saving.SavingData;
@@ -26,6 +28,9 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     private static JMenuItem switchLangRu, switchLangEn, quitMenuItem, systemLookAndFeelItem,
             crossplatformLookAndFeelItem, logMessagelItem;
 
+    InternalFrameClosingAdapter internalFrameClosingAdapter = new InternalFrameClosingAdapter(control);
+    MainFrameClosingAdapter mainFrameClosingAdapter = new MainFrameClosingAdapter(control, savingData);
+
     /**
      * Конструктор класса создает главное окно приложения,
      * а также подписывается на изменение локали через метод addLocaleChangeListener.
@@ -39,9 +44,9 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         addWindow(createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL")));
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowOpened(WindowEvent e){
+            public void windowOpened(WindowEvent e) {
                 Object[] options = {control.getLocale("OPTION_YES"),
-                                    control.getLocale("OPTION_NO")
+                        control.getLocale("OPTION_NO")
                 };
                 int choice = JOptionPane.showOptionDialog(
                         e.getWindow(),
@@ -52,46 +57,18 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                         null,
                         options,
                         options[0]);
-                if (choice == 0){
-                    createMainFrame();
-                }
-                else{
+                if (choice != 0) {
                     currentLang = Locale.getDefault();
                     control.setLocale(currentLang);
-                    createMainFrame();
                 }
+                createMainFrame();
             }
         });
-
     }
 
-    private void createMainFrame(){
+    private void createMainFrame() {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-                              @Override
-                              public void windowClosing(WindowEvent e) {
-                                  Object[] options = {
-                                          control.getLocale("OPTION_YES"),
-                                          control.getLocale("OPTION_NO")
-                                  };
-                                  int choice = JOptionPane.showOptionDialog(
-                                          e.getWindow(),
-                                          control.getLocale("APP_QUIT_OPTION_DIALOG_MES"),
-                                          control.getLocale("OPTION_DIALOG_TITLE"),
-                                          JOptionPane.YES_NO_OPTION,
-                                          JOptionPane.QUESTION_MESSAGE,
-                                          null,
-                                          options,
-                                          options[0]);
-                                  if (choice == 0) {
-                                      savingData.setPreferredLocale(currentLang);
-                                      savingData.uploadPreferredLocale();
-                                      e.getWindow().setVisible(false);
-                                      System.exit(0);
-                                  }
-                              }
-                          }
-        );
+        addWindowListener(mainFrameClosingAdapter);
     }
 
     private LogWindow createLogWindow(String text) {
@@ -101,6 +78,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         setMinimumSize(logWindow.getSize());
         logWindow.pack();
         Logger.debug(text);
+        logWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        logWindow.addInternalFrameListener(internalFrameClosingAdapter);
         return logWindow;
     }
 
@@ -108,6 +87,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         GameWindow gameWindow = new GameWindow();
         gameWindow.setLocation(400, 10);
         gameWindow.setSize(400, 400);
+        gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        gameWindow.addInternalFrameListener(internalFrameClosingAdapter);
         return gameWindow;
     }
 
@@ -269,9 +250,4 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
         logMessagelItem.setText(control.getLocale("FRAME_MES_LOG"));
     }
-
-//    @Override
-//    public void preferenceChange(PreferenceChangeEvent evt) {
-//        savingData.setPreferredLocale();
-//    }
 }

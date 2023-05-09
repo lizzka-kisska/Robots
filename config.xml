@@ -5,7 +5,7 @@
     <map/>
     <node name="config.xml">
       <map>
-        <entry key="locale" value="RU"/>
+        <entry key="locale" value="EN"/>
       </map>
     </node>
   </root>

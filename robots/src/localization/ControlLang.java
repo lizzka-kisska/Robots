@@ -45,6 +45,7 @@ public class ControlLang {
 
     /**
      * Метод, который меняет resourceBundle, используя новую локаль, и уведомляет слушателей об этом.
+     *
      * @param newLang новая локаль.
      */
     public void setLocale(Locale newLang) {
@@ -58,10 +59,15 @@ public class ControlLang {
 
     /**
      * Метод, который добавляет слушателей
+     *
      * @param listener слушатель, который подписывается на изменения
      */
     public void addLocaleChangeListener(PropertyChangeListener listener) //добавить слушателей
     {
         propChangeDispatcher.addPropertyChangeListener(PROPERTY_LANG, listener);
+    }
+
+    public Locale getCurrentLang() {
+        return currentLang;
     }
 }
