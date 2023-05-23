@@ -3,6 +3,7 @@ package gui;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyVetoException;
 import java.util.Locale;
 import java.awt.event.*;
 import javax.swing.*;
@@ -15,6 +16,8 @@ import saving.SavingData;
 
 public class MainApplicationFrame extends JFrame implements PropertyChangeListener {
     private final JDesktopPane desktopPane = new JDesktopPane();
+    private LogWindow logWindow;
+    private GameWindow gameWindow;
     /**
      * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
      */
@@ -30,6 +33,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     InternalFrameClosingAdapter internalFrameClosingAdapter = new InternalFrameClosingAdapter(control);
     MainFrameClosingAdapter mainFrameClosingAdapter = new MainFrameClosingAdapter(control, savingData);
+    SavingDataAdapter logWindowAdapter = new SavingDataAdapter(savingData) {
+    };
 
     /**
      * Конструктор класса создает главное окно приложения,
@@ -38,10 +43,10 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     public MainApplicationFrame() {
         control.addLocaleChangeListener(this);
         setContentPane(desktopPane);
-        addWindow(createGameWindow());
+        createGameWindow();
         setJMenuBar(generateMenuBar());
         control.setLocale(currentLang);
-        addWindow(createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL")));
+        createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
@@ -60,7 +65,14 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                 if (choice != 0) {
                     currentLang = Locale.getDefault();
                     control.setLocale(currentLang);
+                    setDefaultLogWindowState();
+                    setDefaultGameWindowState();
+                } else {
+                    restoreLogWindowState();
+                    restoreGameWindowState();
                 }
+                addWindow(logWindow);
+                addWindow(gameWindow);
                 createMainFrame();
             }
         });
@@ -71,30 +83,87 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         addWindowListener(mainFrameClosingAdapter);
     }
 
-    private LogWindow createLogWindow(String text) {
-        LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
-        logWindow.setLocation(10, 10);
-        logWindow.setSize(300, 800);
-        setMinimumSize(logWindow.getSize());
+    private void createLogWindow(String text) {
+        logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.pack();
         Logger.debug(text);
         logWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         logWindow.addInternalFrameListener(internalFrameClosingAdapter);
-        return logWindow;
+        logWindow.addInternalFrameListener(logWindowAdapter);
+        logWindow.addComponentListener(logWindowAdapter);
     }
 
-    private GameWindow createGameWindow() {
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setLocation(400, 10);
-        gameWindow.setSize(400, 400);
+    private void setDefaultLogWindowState() {
+        savingData.setDefaultLogWindowState();
+        restoreLogWindowState();
+    }
+
+    private void restoreLogWindowState() {
+        logWindow.setLocation(savingData.getLogWindowXCoordinate(), savingData.getLogWindowYCoordinate());
+        logWindow.setSize(savingData.getLogWindowWidth(), savingData.getLogWindowHeight());
+        switch (savingData.getLogWindowState()) {
+            case "closed" -> logWindow.setVisible(false);
+            case "opened" -> logWindow.setVisible(true);
+        }
+        switch (savingData.getLogWindowView()) {
+            case "iconified" -> {
+                try {
+                    logWindow.setIcon(true);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+            case "deiconified" -> {
+                try {
+                    logWindow.setIcon(false);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+        }
+
+    }
+
+    private void createGameWindow() {
+        gameWindow = new GameWindow();
         gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         gameWindow.addInternalFrameListener(internalFrameClosingAdapter);
-        return gameWindow;
+        gameWindow.addInternalFrameListener(logWindowAdapter);
+        gameWindow.addComponentListener(logWindowAdapter);
+    }
+
+    private void setDefaultGameWindowState() {
+        savingData.setDefaultGameWindowState();
+        restoreGameWindowState();
+    }
+
+    private void restoreGameWindowState() {
+        gameWindow.setLocation(savingData.getGameWindowXCoordinate(), savingData.getGameWindowYCoordinate());
+        gameWindow.setSize(savingData.getGameWindowWidth(), savingData.getGameWindowHeight());
+        switch (savingData.getGameWindowState()) {
+            case "closed" -> gameWindow.setVisible(false);
+            case "opened" -> gameWindow.setVisible(true);
+        }
+        switch (savingData.getGameWindowView()) {
+            case "iconified" -> {
+                try {
+                    gameWindow.setIcon(true);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+            case "deiconified" -> {
+                try {
+                    gameWindow.setIcon(false);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+        }
     }
 
     private void addWindow(JInternalFrame frame) {
         desktopPane.add(frame);
-        frame.setVisible(true);
     }
 
     private JMenuBar generateMenuBar() {
@@ -200,9 +269,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private JMenuItem generateLogMessagelItem() {
         JMenuItem item = new JMenuItem(control.getLocale("FRAME_MES_LOG"), KeyEvent.VK_S);
-        item.addActionListener((event) -> {
-            Logger.debug(control.getLocale("LOG_MES"));
-        });
+        item.addActionListener((event) -> Logger.debug(control.getLocale("LOG_MES")));
         return item;
     }
 

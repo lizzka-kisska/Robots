@@ -16,8 +16,7 @@ public class InternalFrameClosingAdapter extends InternalFrameAdapter implements
     public void internalFrameClosing(InternalFrameEvent e) {
         int choice = getChoice(e.getInternalFrame());
         if (choice == 0) {
-            e.getInternalFrame().setVisible(false);
-
+            e.getInternalFrame().dispose();
         }
     }
 

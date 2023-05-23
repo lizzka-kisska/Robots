@@ -28,8 +28,6 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Prop
         m_logSource = logSource;
         m_logSource.registerListener(this);
         m_logContent = new TextArea("");
-        m_logContent.setSize(200, 500);
-
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(m_logContent, BorderLayout.CENTER);
         getContentPane().add(panel);
@@ -59,10 +57,12 @@ public class LogWindow extends JInternalFrame implements LogChangeListener, Prop
             super.doDefaultCloseAction();
         }
     }
+
     /**
      * Метод, который меняет регариует, если изменилась локаль.
+     *
      * @param evt A PropertyChangeEvent object describing the event source
-     *          and the property that has changed.
+     *            and the property that has changed.
      */
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
