@@ -19,12 +19,12 @@ public abstract class SavingDataAdapter implements InternalFrameListener, Compon
 
     @Override
     public void componentResized(ComponentEvent e) {
-        savingData.updateSize(e);
+        savingData.windowState().updateSize(e);
     }
 
     @Override
     public void componentMoved(ComponentEvent e) {
-        savingData.updateLocation(e);
+        savingData.windowState().updateLocation(e);
     }
 
     @Override
@@ -37,7 +37,7 @@ public abstract class SavingDataAdapter implements InternalFrameListener, Compon
 
     @Override
     public void internalFrameOpened(InternalFrameEvent e) {
-        savingData.updateStateToOpened(e);
+        savingData.windowState().updateStateToOpened(e);
     }
 
     @Override
@@ -46,17 +46,17 @@ public abstract class SavingDataAdapter implements InternalFrameListener, Compon
 
     @Override
     public void internalFrameClosed(InternalFrameEvent e) {
-        savingData.updateStateToClosed(e);
+        savingData.windowState().updateStateToClosed(e);
     }
 
     @Override
     public void internalFrameIconified(InternalFrameEvent e) {
-        savingData.updateViewToIconified(e);
+        savingData.windowState().updateViewToIconified(e);
     }
 
     @Override
     public void internalFrameDeiconified(InternalFrameEvent e) {
-        savingData.updateViewToDeiconified(e);
+        savingData.windowState().updateViewToDeiconified(e);
     }
 
 

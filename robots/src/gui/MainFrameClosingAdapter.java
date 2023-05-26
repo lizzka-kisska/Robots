@@ -22,10 +22,9 @@ public class MainFrameClosingAdapter extends WindowAdapter implements FrameClosi
         int choice = getChoice(e.getWindow());
         if (choice == 0) {
             currentLang = control.getCurrentLang();
-            savingData.setPreferredLocale(currentLang);
-            savingData.uploadPreferredLocale();
-            savingData.uploadLogWindowState();
-            savingData.uploadGameWindowState();
+            savingData.localeState().setPreferredLocale(currentLang);
+            savingData.localeState().uploadPreferredLocale();
+            savingData.windowState().uploadWindowState();
             e.getWindow().setVisible(false);
             System.exit(0);
         }
