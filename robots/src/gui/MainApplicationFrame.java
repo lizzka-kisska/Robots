@@ -10,6 +10,7 @@ import javax.swing.*;
 
 import gui.internalframes.GameWindow;
 import gui.internalframes.LogWindow;
+import gui.internalframes.TimerWindow;
 import localization.ControlLang;
 import log.Logger;
 import saving.SavingData;
@@ -18,6 +19,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     private final JDesktopPane desktopPane = new JDesktopPane();
     private LogWindow logWindow;
     private GameWindow gameWindow;
+    public static TimerWindow timerWindow;
     /**
      * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
      */
@@ -43,6 +45,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     public MainApplicationFrame() {
         control.addLocaleChangeListener(this);
         setContentPane(desktopPane);
+        createGameWindow();
+        createTimerWindow();
         setJMenuBar(generateMenuBar());
         control.setLocale(currentLang);
         addWindowListener(new WindowAdapter() {
@@ -68,6 +72,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                 }
                 createGameWindow();
                 createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
+                addWindow(timerWindow);
                 addWindow(logWindow);
                 addWindow(gameWindow);
                 createMainFrame();
@@ -116,6 +121,18 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                 }
             }
         }
+    }
+
+    private void createTimerWindow(){
+        timerWindow = new TimerWindow();
+//        gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+//        timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
+//        timerWindow.addInternalFrameListener(logWindowAdapter);
+//        timerWindow.addComponentListener(logWindowAdapter);
+        timerWindow.setDefaultCloseOperation(EXIT_ON_CLOSE);
+        timerWindow.setLocation(500, 500);
+        timerWindow.setSize(200, 100);
+        timerWindow.setVisible(true);
     }
 
     private void createGameWindow() {
@@ -173,7 +190,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private JMenu generateSwitchLang() {
         JMenu menu = new JMenu(control.getLocale("FRAME_SWITCH_LANG"));
-        menu.setMnemonic(KeyEvent.VK_V);
+        menu.setMnemonic(KeyEvent.VK_1);
         menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_SWITCH_LANG"));
         switchLangRu = generateSwitchLangRuItem();
         switchLangEn = generateSwitchLangEnItem();
@@ -183,8 +200,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     }
 
     private JMenuItem generateSwitchLangRuItem() {
-        JMenuItem item = new JMenuItem(control.getLocale("LANG_RU"), KeyEvent.VK_S);
-        item.setMnemonic(KeyEvent.VK_V);
+        JMenuItem item = new JMenuItem(control.getLocale("LANG_RU"), KeyEvent.VK_R);
+        item.setMnemonic(KeyEvent.VK_1);
         item.addActionListener((event) -> {
             currentLang = Locale.getDefault();
             control.setLocale(currentLang);
@@ -193,8 +210,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     }
 
     private JMenuItem generateSwitchLangEnItem() {
-        JMenuItem item = new JMenuItem(control.getLocale("LANG_EN"), KeyEvent.VK_S);
-        item.setMnemonic(KeyEvent.VK_V);
+        JMenuItem item = new JMenuItem(control.getLocale("LANG_EN"), KeyEvent.VK_E);
+        item.setMnemonic(KeyEvent.VK_1);
         item.addActionListener((event) -> {
             currentLang = Locale.ENGLISH;
             control.setLocale(currentLang);
@@ -204,7 +221,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private JMenu generateQuitMenu() {
         JMenu menu = new JMenu(control.getLocale("FRAME_QUIT"));
-        menu.setMnemonic(KeyEvent.VK_V);
+        menu.setMnemonic(KeyEvent.VK_4);
         menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_APP_QUIT"));
         quitMenuItem = generateQuitMenuItem();
         menu.add(quitMenuItem);
@@ -212,7 +229,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     }
 
     private JMenuItem generateQuitMenuItem() {
-        JMenuItem item = new JMenuItem(control.getLocale("FRAME_APP_QUIT"), KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_APP_QUIT"), KeyEvent.VK_4);
         item.addActionListener((event) ->
                 dispatchEvent(new WindowEvent(MainApplicationFrame.this, WindowEvent.WINDOW_CLOSING))
         );
@@ -221,7 +238,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private JMenu generateLookAndFeelMenu() {
         JMenu menu = new JMenu(control.getLocale("FRAME_DISPLAY_MODE"));
-        menu.setMnemonic(KeyEvent.VK_V);
+        menu.setMnemonic(KeyEvent.VK_2);
         menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_MANAGE_DISPLAY_MODE"));
         systemLookAndFeelItem = generateSystemLookAndFeelItem();
         crossplatformLookAndFeelItem = generateCrossplatformLookAndFeelItem();
@@ -231,7 +248,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     }
 
     private JMenuItem generateSystemLookAndFeelItem() {
-        JMenuItem item = new JMenuItem(control.getLocale("FRAME_SYS_SCHEME"), KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_SYS_SCHEME"), KeyEvent.VK_2);
         item.addActionListener((event) -> {
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             this.invalidate();
@@ -240,7 +257,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     }
 
     private JMenuItem generateCrossplatformLookAndFeelItem() {
-        JMenuItem item = new JMenuItem(control.getLocale("FRAME_UNI_SCHEME"), KeyEvent.VK_S);
+        JMenuItem item = new JMenuItem(control.getLocale("FRAME_UNI_SCHEME"), KeyEvent.VK_2);
         item.addActionListener((event) -> {
             setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             this.invalidate();
@@ -250,7 +267,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private JMenu generateTestMenu() {
         JMenu menu = new JMenu(control.getLocale("FRAME_TESTS"));
-        menu.setMnemonic(KeyEvent.VK_T);
+        menu.setMnemonic(KeyEvent.VK_3);
         menu.getAccessibleContext().setAccessibleDescription(control.getLocale("FRAME_TEST_COMMANDS"));
         logMessagelItem = generateLogMessagelItem();
         menu.add(logMessagelItem);

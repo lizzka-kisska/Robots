@@ -1,24 +1,28 @@
 package gui;
 
+import log.Logger;
 import logic.Robot;
 import logic.Target;
+import logic.UserRobot;
 
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 
 public class GameVisualizer extends JPanel {
     Robot robot = new Robot(100, 100, 0);
     Target target = new Target(150, 100);
+    UserRobot userRobot = new UserRobot(150, 150, 0);
     private final Timer m_timer = initTimer();
+    private long startTime = 0;
+    private boolean needTime = true;
 
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -45,6 +49,15 @@ public class GameVisualizer extends JPanel {
                 repaint();
             }
         });
+        setFocusable(true);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                super.keyPressed(e);
+                userRobot.changeDirection(e);
+                repaint();
+            }
+        });
         setDoubleBuffered(true);
     }
 
@@ -54,8 +67,31 @@ public class GameVisualizer extends JPanel {
 
 
     protected void onModelUpdateEvent() {
-        robot.moveRobot(getWidth(), getHeight(),
-                target.xCoordinate, target.yCoordinate);
+        robot.moveRobot(getWidth(), getHeight(), target.xCoordinate, target.yCoordinate);
+        userRobot.moveUserRobot(getWidth(), getHeight());
+        if (userRobot.xOffset != 0 || userRobot.yOffset != 0){
+            checkDistance();
+        }
+    }
+
+    protected void checkDistance(){
+        if (Math.sqrt(Math.pow(robot.xCoordinate - userRobot.xCoordinate, 2)
+                    - Math.pow(robot.yCoordinate - userRobot.yCoordinate, 2)) <= 100) {
+            if (needTime){
+                startTime = System.currentTimeMillis();
+                needTime = false;
+            }
+            MainApplicationFrame.timerWindow.setTime(
+                    Long.toString(2 - (System.currentTimeMillis() - startTime)/1000));
+            if (System.currentTimeMillis() - startTime >= 2000){
+//                Logger.debug("Время вышло");
+                MainApplicationFrame.timerWindow.setTime("you're a noob");
+            }
+        }
+        else {
+            needTime = true;
+            MainApplicationFrame.timerWindow.setTime("hype");
+        }
     }
 
     private static int round(double value) {
@@ -66,7 +102,8 @@ public class GameVisualizer extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
-        drawRobot(g2d, round(robot.xCoordinate), round(robot.yCoordinate), robot.direction);
+        drawRobot(g2d, round(robot.xCoordinate), round(robot.yCoordinate), robot.direction, Color.RED);
+        drawRobot(g2d, round(userRobot.xCoordinate), round(userRobot.yCoordinate), userRobot.direction, Color.CYAN);
         drawTarget(g2d, target.xCoordinate, target.yCoordinate);
     }
 
@@ -78,12 +115,12 @@ public class GameVisualizer extends JPanel {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
 
-    private void drawRobot(Graphics2D g, int x, int y, double direction) {
-        int robotCenterX = round(robot.xCoordinate);
-        int robotCenterY = round(robot.yCoordinate);
+    private void drawRobot(Graphics2D g, int x, int y, double direction, Color bodyColor) {
+        int robotCenterX = round(x);
+        int robotCenterY = round(y);
         AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY);
         g.setTransform(t);
-        g.setColor(Color.MAGENTA);
+        g.setColor(bodyColor);
         fillOval(g, robotCenterX, robotCenterY, 30, 10);
         g.setColor(Color.BLACK);
         drawOval(g, robotCenterX, robotCenterY, 30, 10);

@@ -1,6 +1,6 @@
 package logic;
 
-public class Robot {
+public class Robot implements MovingRobot{
     public final double maxVelocity = 0.1;
     public final double maxAngularVelocity = 0.001;
     public final double duration = 10;
@@ -54,9 +54,9 @@ public class Robot {
 
     }
 
-    private static double applyLimits(double value, double max) {
-        return Math.min(Math.max(value, 0), max);
-    }
+//    private static double applyLimits(double value, double max) {
+//        return Math.min(Math.max(value, 0), max);
+//    }
 
 
     public void moveRobot(int width, int height, double targetXCoordinate, double targetYCoordinate) {
