@@ -1,13 +1,11 @@
 package gui;
 
+import logic.Bush;
 import logic.Robot;
 import logic.Target;
 import logic.UserRobot;
 
-import java.awt.Color;
-import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.AffineTransform;
 import java.util.Timer;
@@ -17,8 +15,9 @@ import javax.swing.*;
 
 public class GameVisualizer extends JPanel {
     Robot robot = new Robot(100, 100, 0);
-    Target target = new Target(150, 100);
+    Target target = new Target();
     UserRobot userRobot = new UserRobot(150, 150, 0);
+    Bush bush = new Bush();
     private Timer m_timer = initTimer();
     private long startTime;
     private boolean needTime = true;
@@ -42,13 +41,6 @@ public class GameVisualizer extends JPanel {
                 onModelUpdateEvent();
             }
         }, 0, 10);
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                target.setTargetPosition(e.getPoint().x, e.getPoint().y);
-                repaint();
-            }
-        });
         setFocusable(true);
         addKeyListener(new KeyAdapter() {
             @Override
@@ -66,10 +58,18 @@ public class GameVisualizer extends JPanel {
     }
 
     protected void onModelUpdateEvent() {
-        if (runGame){
-            robot.moveRobot(getWidth(), getHeight(), target.xCoordinate, target.yCoordinate);
+        if (runGame) {
+            robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
-            if (userRobot.xOffset != 0 || userRobot.yOffset != 0){
+            if (userRobot.isInsideBush(bush.xCoordinate, bush.yCoordinate)) {
+                userRobot.updateXOffset(0);
+                userRobot.updateYOffset(0);
+            }
+            if (userRobot.reachedTarget(target.xCoordinate, target.yCoordinate)) {
+                target.updateTargetPosition(getWidth(), getHeight());
+                repaint();
+            }
+            if (userRobot.xOffset != 0 || userRobot.yOffset != 0) {
                 checkDistance();
             }
         }
@@ -83,7 +83,7 @@ public class GameVisualizer extends JPanel {
                 needTime = false;
             }
             MainApplicationFrame.timerWindow.setTime(
-                        Long.toString(2 - (System.currentTimeMillis() - startTime) / 1000));
+                    Long.toString(2 - (System.currentTimeMillis() - startTime) / 1000));
             if (System.currentTimeMillis() - startTime >= 2000) {
                 MainApplicationFrame.timerWindow.setText("LOSE");
                 runGame = false;
@@ -105,6 +105,7 @@ public class GameVisualizer extends JPanel {
         drawRobot(g2d, round(robot.xCoordinate), round(robot.yCoordinate), robot.direction, Color.RED);
         drawRobot(g2d, round(userRobot.xCoordinate), round(userRobot.yCoordinate), userRobot.direction, Color.CYAN);
         drawTarget(g2d, target.xCoordinate, target.yCoordinate);
+        drawBush(g2d, bush.xCoordinate, bush.yCoordinate);
     }
 
     private static void fillOval(Graphics g, int centerX, int centerY, int diam1, int diam2) {
@@ -137,5 +138,11 @@ public class GameVisualizer extends JPanel {
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);
         drawOval(g, x, y, 5, 5);
+    }
+
+    private void drawBush(Graphics2D g, int x, int y) {
+        Rectangle square = new Rectangle(x, y, 20, 20);
+        g.setColor(Color.GREEN);
+        g.fill(square);
     }
 }

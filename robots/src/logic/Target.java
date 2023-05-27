@@ -1,16 +1,19 @@
 package logic;
 
-public class Target {
-    public volatile int xCoordinate;
-    public volatile int yCoordinate;
+import java.util.Random;
 
-    public Target(int targetXCoordinate, int targetYCoordinate) {
-        this.xCoordinate = targetXCoordinate;
-        this.yCoordinate = targetYCoordinate;
+public class Target {
+    public volatile int xCoordinate = 150;
+    public volatile int yCoordinate = 100;
+    private static final Random random = new Random();
+
+    public Target() {
     }
 
-    public void setTargetPosition(int x, int y) {
-        xCoordinate = x;
-        yCoordinate = y;
+    public void updateTargetPosition(int width, int height) {
+        if (width != 0 || height != 0) {
+            xCoordinate = random.nextInt(width);
+            yCoordinate = random.nextInt(height);
+        }
     }
 }
