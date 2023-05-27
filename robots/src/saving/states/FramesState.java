@@ -126,4 +126,14 @@ public class FramesState {
         windowState.node(fileName).put("state", "opened");
         windowState.node(fileName).put("view", "deiconified");
     }
+
+    public void setDefaultTimerWindowState(){
+        String fileName = "TimerWindow.xml";
+        windowState.node(fileName).putInt("X", 500);
+        windowState.node(fileName).putInt("Y", 400);
+        windowState.node(fileName).putInt("width", 200);
+        windowState.node(fileName).putInt("height", 100);
+        windowState.node(fileName).put("state", "opened");
+        windowState.node(fileName).put("view", "deiconified");
+    }
 }

@@ -1,6 +1,5 @@
 package gui;
 
-import log.Logger;
 import logic.Robot;
 import logic.Target;
 import logic.UserRobot;
@@ -20,9 +19,10 @@ public class GameVisualizer extends JPanel {
     Robot robot = new Robot(100, 100, 0);
     Target target = new Target(150, 100);
     UserRobot userRobot = new UserRobot(150, 150, 0);
-    private final Timer m_timer = initTimer();
-    private long startTime = 0;
+    private Timer m_timer = initTimer();
+    private long startTime;
     private boolean needTime = true;
+    private boolean runGame = true;
 
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -65,32 +65,32 @@ public class GameVisualizer extends JPanel {
         EventQueue.invokeLater(this::repaint);
     }
 
-
     protected void onModelUpdateEvent() {
-        robot.moveRobot(getWidth(), getHeight(), target.xCoordinate, target.yCoordinate);
-        userRobot.moveUserRobot(getWidth(), getHeight());
-        if (userRobot.xOffset != 0 || userRobot.yOffset != 0){
-            checkDistance();
+        if (runGame){
+            robot.moveRobot(getWidth(), getHeight(), target.xCoordinate, target.yCoordinate);
+            userRobot.moveUserRobot(getWidth(), getHeight());
+            if (userRobot.xOffset != 0 || userRobot.yOffset != 0){
+                checkDistance();
+            }
         }
     }
 
-    protected void checkDistance(){
+    protected void checkDistance() {
         if (Math.sqrt(Math.pow(robot.xCoordinate - userRobot.xCoordinate, 2)
-                    - Math.pow(robot.yCoordinate - userRobot.yCoordinate, 2)) <= 100) {
-            if (needTime){
+                + Math.pow(robot.yCoordinate - userRobot.yCoordinate, 2)) <= 100) {
+            if (needTime) {
                 startTime = System.currentTimeMillis();
                 needTime = false;
             }
             MainApplicationFrame.timerWindow.setTime(
-                    Long.toString(2 - (System.currentTimeMillis() - startTime)/1000));
-            if (System.currentTimeMillis() - startTime >= 2000){
-//                Logger.debug("Время вышло");
-                MainApplicationFrame.timerWindow.setTime("you're a noob");
+                        Long.toString(2 - (System.currentTimeMillis() - startTime) / 1000));
+            if (System.currentTimeMillis() - startTime >= 2000) {
+                MainApplicationFrame.timerWindow.setText("LOSE");
+                runGame = false;
             }
-        }
-        else {
+        } else {
             needTime = true;
-            MainApplicationFrame.timerWindow.setTime("hype");
+            MainApplicationFrame.timerWindow.setText("HYPE");
         }
     }
 

@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -45,8 +46,6 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     public MainApplicationFrame() {
         control.addLocaleChangeListener(this);
         setContentPane(desktopPane);
-        createGameWindow();
-        createTimerWindow();
         setJMenuBar(generateMenuBar());
         control.setLocale(currentLang);
         addWindowListener(new WindowAdapter() {
@@ -69,8 +68,10 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                     control.setLocale(currentLang);
                     savingData.windowState().setDefaultGameWindowState();
                     savingData.windowState().setDefaultLogWindowState();
+                    savingData.windowState().setDefaultTimerWindowState();
                 }
                 createGameWindow();
+                createTimerWindow();
                 createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
                 addWindow(timerWindow);
                 addWindow(logWindow);
@@ -125,14 +126,38 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private void createTimerWindow(){
         timerWindow = new TimerWindow();
-//        gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-//        timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
-//        timerWindow.addInternalFrameListener(logWindowAdapter);
-//        timerWindow.addComponentListener(logWindowAdapter);
-        timerWindow.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        timerWindow.setLocation(500, 500);
-        timerWindow.setSize(200, 100);
-        timerWindow.setVisible(true);
+        gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
+        timerWindow.addInternalFrameListener(savingDataAdapter);
+        timerWindow.addComponentListener(savingDataAdapter);
+        restoreTimerWindowState();
+    }
+
+    public void restoreTimerWindowState(){
+        timerWindow.setLocation(savingData.windowState().getWindowXCoordinate(timerWindow),
+                savingData.windowState().getWindowYCoordinate(timerWindow));
+        timerWindow.setSize(savingData.windowState().getWindowWidth(timerWindow),
+                savingData.windowState().getWindowHeight(timerWindow));
+        switch (savingData.windowState().getWindowState(timerWindow)) {
+            case "closed" -> timerWindow.setVisible(false);
+            case "opened" -> timerWindow.setVisible(true);
+        }
+        switch (savingData.windowState().getWindowView(timerWindow)) {
+            case "iconified" -> {
+                try {
+                    timerWindow.setIcon(true);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+            case "deiconified" -> {
+                try {
+                    timerWindow.setIcon(false);
+                } catch (PropertyVetoException e) {
+                    Logger.debug(e.toString());
+                }
+            }
+        }
     }
 
     private void createGameWindow() {
