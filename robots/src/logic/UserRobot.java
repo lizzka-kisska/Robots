@@ -20,32 +20,24 @@ public class UserRobot implements MovingRobot {
             case 'w' -> {
                 xOffset = 0;
                 yOffset = -1;
-                direction = 4.65;
+                direction = UserRobotDirection.UP.getDirectionAngle();
             }
             case 'a' -> {
                 xOffset = -1;
                 yOffset = 0;
-                direction = 3.1;
+                direction = UserRobotDirection.LEFT.getDirectionAngle();
             }
             case 's' -> {
                 xOffset = 0;
                 yOffset = 1;
-                direction = 1.5;
+                direction = UserRobotDirection.DOWN.getDirectionAngle();
             }
             case 'd' -> {
                 xOffset = 1;
                 yOffset = 0;
-                direction = 0;
+                direction = UserRobotDirection.RIGHT.getDirectionAngle();
             }
         }
-    }
-
-    public void updateXOffset(int offset) {
-        xOffset = offset;
-    }
-
-    public void updateYOffset(int offset) {
-        yOffset = offset;
     }
 
     public void moveUserRobot(int width, int height) {
@@ -76,6 +68,6 @@ public class UserRobot implements MovingRobot {
     }
 
     public boolean isInsideBush(int bushX, int bushY) {
-        return distanceToTarget(bushX, bushY) < 20;
+        return distanceToTarget(bushX, bushY) < 15;
     }
 }

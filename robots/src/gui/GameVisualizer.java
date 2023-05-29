@@ -1,9 +1,7 @@
 package gui;
 
-import logic.Bush;
+import logic.*;
 import logic.Robot;
-import logic.Target;
-import logic.UserRobot;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -18,10 +16,9 @@ public class GameVisualizer extends JPanel {
     Target target = new Target();
     UserRobot userRobot = new UserRobot(150, 150, 0);
     Bush bush = new Bush();
+    TimerToEndGame timerToEndGame = new TimerToEndGame();
     private Timer m_timer = initTimer();
-    private long startTime;
-    private boolean needTime = true;
-    private boolean runGame = true;
+    public static boolean runGame = true;
 
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -62,8 +59,8 @@ public class GameVisualizer extends JPanel {
             robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
             if (userRobot.isInsideBush(bush.xCoordinate, bush.yCoordinate)) {
-                userRobot.updateXOffset(0);
-                userRobot.updateYOffset(0);
+                userRobot.xOffset = 0;
+                userRobot.yOffset = 0;
             }
             if (userRobot.reachedTarget(target.xCoordinate, target.yCoordinate)) {
                 target.updateTargetPosition(getWidth(), getHeight());
@@ -76,23 +73,16 @@ public class GameVisualizer extends JPanel {
     }
 
     protected void checkDistance() {
-        if (Math.sqrt(Math.pow(robot.xCoordinate - userRobot.xCoordinate, 2)
-                + Math.pow(robot.yCoordinate - userRobot.yCoordinate, 2)) <= 100) {
-            if (needTime) {
-                startTime = System.currentTimeMillis();
-                needTime = false;
-            }
-            MainApplicationFrame.timerWindow.setTime(
-                    Long.toString(2 - (System.currentTimeMillis() - startTime) / 1000));
-            if (System.currentTimeMillis() - startTime >= 2000) {
-                MainApplicationFrame.timerWindow.setText("LOSE");
-                runGame = false;
-            }
+        int RADIUS = 100;
+        if (distance(robot.xCoordinate, userRobot.xCoordinate, robot.yCoordinate, userRobot.yCoordinate) <= RADIUS) {
+            timerToEndGame.startAndRunTimer();
         } else {
-            needTime = true;
-            MainApplicationFrame.timerWindow.setText("HYPE");
+            timerToEndGame.stopTimer();
         }
     }
+
+    private double distance(double x1, double x2, double y1, double y2){return Math.sqrt(Math.pow(x2 - x1, 2)
+            + Math.pow(y2 - y1, 2));}
 
     private static int round(double value) {
         return (int) (value + 0.5);
