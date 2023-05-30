@@ -6,8 +6,8 @@ public class UserRobot implements MovingRobot {
     public volatile double xCoordinate;
     public volatile double yCoordinate;
     public volatile double direction;
-    public volatile int xOffset = 0;
-    public volatile int yOffset = 0;
+    public volatile int xOffset;
+    public volatile int yOffset;
 
     public UserRobot(double userRobotXCoordinate, double userRobotYCoordinate, double userRobotDirection) {
         this.xCoordinate = userRobotXCoordinate;
@@ -17,24 +17,24 @@ public class UserRobot implements MovingRobot {
 
     public void changeDirection(KeyEvent e) {
         switch (e.getKeyChar()) {
-            case 'w' -> {
-                xOffset = 0;
-                yOffset = -1;
+            case 'w', 'W' -> {
+                xOffset = UserRobotOffset.UP.getXOffset();
+                yOffset = UserRobotOffset.UP.getYOffset();
                 direction = UserRobotDirection.UP.getDirectionAngle();
             }
-            case 'a' -> {
-                xOffset = -1;
-                yOffset = 0;
+            case 'a', 'A' -> {
+                xOffset = UserRobotOffset.LEFT.getXOffset();
+                yOffset = UserRobotOffset.LEFT.getYOffset();
                 direction = UserRobotDirection.LEFT.getDirectionAngle();
             }
-            case 's' -> {
-                xOffset = 0;
-                yOffset = 1;
+            case 's', 'S' -> {
+                xOffset = UserRobotOffset.DOWN.getXOffset();
+                yOffset = UserRobotOffset.DOWN.getYOffset();
                 direction = UserRobotDirection.DOWN.getDirectionAngle();
             }
-            case 'd' -> {
-                xOffset = 1;
-                yOffset = 0;
+            case 'd', 'D' -> {
+                xOffset = UserRobotOffset.RIGHT.getXOffset();
+                yOffset = UserRobotOffset.RIGHT.getYOffset();
                 direction = UserRobotDirection.RIGHT.getDirectionAngle();
             }
         }
@@ -44,23 +44,25 @@ public class UserRobot implements MovingRobot {
         updateCoordinates(width, height);
     }
 
-    private double distanceToTarget(double targetX, double targetY) {
-        double diffX = targetX - xCoordinate;
-        double diffY = targetY - yCoordinate;
+    private double distanceTo(double X, double Y) {
+        double diffX = X - xCoordinate;
+        double diffY = Y - yCoordinate;
         return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
     public boolean reachedTarget(int targetX, int targetY) {
-        return distanceToTarget(targetX, targetY) < 6;
+        int MINIMUM_DISTANCE = 6;
+        return distanceTo(targetX, targetY) < MINIMUM_DISTANCE;
     }
 
     private void updateCoordinates(int width, int height) {
+        int ZERO_VALUE = 0;
         double newXCoordinate = xCoordinate + xOffset;
         double newYCoordinate = yCoordinate + yOffset;
-        if (width != 0) {
+        if (width != ZERO_VALUE) {
             newXCoordinate = applyLimits(newXCoordinate, width);
         }
-        if (height != 0) {
+        if (height != ZERO_VALUE) {
             newYCoordinate = applyLimits(newYCoordinate, height);
         }
         xCoordinate = newXCoordinate;
@@ -68,6 +70,7 @@ public class UserRobot implements MovingRobot {
     }
 
     public boolean isInsideBush(int bushX, int bushY) {
-        return distanceToTarget(bushX, bushY) < 15;
+        int RADIUS = 15;
+        return distanceTo(bushX, bushY) < RADIUS;
     }
 }

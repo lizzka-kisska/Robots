@@ -8,7 +8,8 @@ public class Bush {
     private static final Random random = new Random();
 
     public Bush() {
-        xCoordinate = random.nextInt(100);
-        yCoordinate = random.nextInt(100);
+        int BOUND = 100;
+        xCoordinate = random.nextInt(BOUND);
+        yCoordinate = random.nextInt(BOUND);
     }
 }

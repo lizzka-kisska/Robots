@@ -51,6 +51,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowOpened(WindowEvent e) {
+                int OPTION_YES_INT_VALUE = 0;
                 Object[] options = {control.getLocale("OPTION_YES"),
                         control.getLocale("OPTION_NO")
                 };
@@ -62,8 +63,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                         JOptionPane.QUESTION_MESSAGE,
                         null,
                         options,
-                        options[0]);
-                if (choice != 0) {
+                        options[OPTION_YES_INT_VALUE]);
+                if (choice != OPTION_YES_INT_VALUE) {
                     currentLang = Locale.getDefault();
                     control.setLocale(currentLang);
                     savingData.windowState().setDefaultGameWindowState();
@@ -124,7 +125,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         }
     }
 
-    private void createTimerWindow(){
+    private void createTimerWindow() {
         timerWindow = new TimerWindow();
         gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
@@ -133,7 +134,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         restoreTimerWindowState();
     }
 
-    public void restoreTimerWindowState(){
+    public void restoreTimerWindowState() {
         timerWindow.setLocation(savingData.windowState().getWindowXCoordinate(timerWindow),
                 savingData.windowState().getWindowYCoordinate(timerWindow));
         timerWindow.setSize(savingData.windowState().getWindowWidth(timerWindow),

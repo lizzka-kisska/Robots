@@ -55,18 +55,19 @@ public class GameVisualizer extends JPanel {
     }
 
     protected void onModelUpdateEvent() {
+        int ZER0_VALUE = 0;
         if (runGame) {
             robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
             if (userRobot.isInsideBush(bush.xCoordinate, bush.yCoordinate)) {
-                userRobot.xOffset = 0;
-                userRobot.yOffset = 0;
+                userRobot.xOffset = ZER0_VALUE;
+                userRobot.yOffset = ZER0_VALUE;
             }
             if (userRobot.reachedTarget(target.xCoordinate, target.yCoordinate)) {
                 target.updateTargetPosition(getWidth(), getHeight());
                 repaint();
             }
-            if (userRobot.xOffset != 0 || userRobot.yOffset != 0) {
+            if (userRobot.xOffset != ZER0_VALUE || userRobot.yOffset != ZER0_VALUE) {
                 checkDistance();
             }
         }
@@ -81,8 +82,10 @@ public class GameVisualizer extends JPanel {
         }
     }
 
-    private double distance(double x1, double x2, double y1, double y2){return Math.sqrt(Math.pow(x2 - x1, 2)
-            + Math.pow(y2 - y1, 2));}
+    private double distance(double x1, double x2, double y1, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2)
+                + Math.pow(y2 - y1, 2));
+    }
 
     private static int round(double value) {
         return (int) (value + 0.5);

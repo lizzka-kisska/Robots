@@ -11,7 +11,8 @@ public class Target {
     }
 
     public void updateTargetPosition(int width, int height) {
-        if (width != 0 || height != 0) {
+        int ZERO_VALUE = 0;
+        if (width != ZERO_VALUE || height != ZERO_VALUE) {
             xCoordinate = random.nextInt(width);
             yCoordinate = random.nextInt(height);
         }

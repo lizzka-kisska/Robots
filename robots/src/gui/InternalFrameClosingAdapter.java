@@ -14,8 +14,9 @@ public class InternalFrameClosingAdapter extends InternalFrameAdapter implements
 
     @Override
     public void internalFrameClosing(InternalFrameEvent e) {
+        int OPTION_YES_INT_VALUE = 0;
         int choice = getChoice(e.getInternalFrame());
-        if (choice == 0) {
+        if (choice == OPTION_YES_INT_VALUE) {
             e.getInternalFrame().dispose();
         }
     }

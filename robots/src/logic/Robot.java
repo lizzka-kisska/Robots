@@ -1,6 +1,7 @@
 package logic;
 
 import java.util.Random;
+import java.util.function.DoubleUnaryOperator;
 
 public class Robot implements MovingRobot {
     public final double maxVelocity = 0.1;
@@ -13,6 +14,7 @@ public class Robot implements MovingRobot {
     public double velocity = maxVelocity;
     public double angularVelocity = 0;
     public double angleToNextXY = 0;
+    private static final int ZERO_VALUE = 0;
     private static final Random random = new Random();
 
     public Robot(double robotXCoordinate, double robotYCoordinate, double robotDirection) {
@@ -28,12 +30,14 @@ public class Robot implements MovingRobot {
     }
 
     public double asNormalizedRadians(double angle) {
-        return (angle % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
+        double DOUBLE_PI = 2 * Math.PI;
+        return (angle % (DOUBLE_PI) + DOUBLE_PI) % (DOUBLE_PI);
     }
 
     public void updateAngularVelocity(double angleToNextXY) {
-        if (Math.abs(direction - angleToNextXY) < 10e-7) {
-            angularVelocity = 0;
+        double MINIMUM_DISTANCE = 10e-7;
+        if (Math.abs(direction - angleToNextXY) < MINIMUM_DISTANCE) {
+            angularVelocity = ZERO_VALUE;
         } else if (direction >= Math.PI) {
             if (direction - Math.PI < angleToNextXY && angleToNextXY < direction)
                 angularVelocity = -maxAngularVelocity;
@@ -56,7 +60,7 @@ public class Robot implements MovingRobot {
     }
 
     public void moveRobot(int width, int height) {
-        if (width != 0 || height != 0) {
+        if (width != ZERO_VALUE || height != ZERO_VALUE) {
             int nextX = getNextX(width);
             int nextY = getNextY(height);
             updateAngle(nextX, nextY);
@@ -70,10 +74,10 @@ public class Robot implements MovingRobot {
     private void updateCoordinates(int width, int height) {
         double newXCoordinate = xCoordinate + velocity * duration * Math.cos(direction);
         double newYCoordinate = yCoordinate + velocity * duration * Math.sin(direction);
-        if (width != 0) {
+        if (width != ZERO_VALUE) {
             newXCoordinate = applyLimits(newXCoordinate, width);
         }
-        if (height != 0) {
+        if (height != ZERO_VALUE) {
             newYCoordinate = applyLimits(newYCoordinate, height);
         }
         xCoordinate = newXCoordinate;

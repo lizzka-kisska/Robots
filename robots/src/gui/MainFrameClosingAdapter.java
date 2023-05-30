@@ -19,8 +19,9 @@ public class MainFrameClosingAdapter extends WindowAdapter implements FrameClosi
 
     @Override
     public void windowClosing(WindowEvent e) {
+        int OPTION_YES_INT_VALUE = 0;
         int choice = getChoice(e.getWindow());
-        if (choice == 0) {
+        if (choice == OPTION_YES_INT_VALUE) {
             currentLang = control.getCurrentLang();
             savingData.localeState().setPreferredLocale(currentLang);
             savingData.localeState().uploadPreferredLocale();
