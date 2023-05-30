@@ -19,6 +19,7 @@ public class GameVisualizer extends JPanel {
     TimerToEndGame timerToEndGame = new TimerToEndGame();
     private Timer m_timer = initTimer();
     public static boolean runGame = true;
+    private double zoomLevel = 1;
 
     private static Timer initTimer() {
         Timer timer = new Timer("events generator", true);
@@ -43,7 +44,11 @@ public class GameVisualizer extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                userRobot.changeDirection(e);
+                if (e.getKeyChar() == '='){
+                    zoomLevel += 0.1;
+                } else if (e.getKeyChar() == '-') {
+                    zoomLevel -= 0.1;
+                } else userRobot.changeDirection(e);
                 repaint();
             }
         });
@@ -55,7 +60,6 @@ public class GameVisualizer extends JPanel {
     }
 
     protected void onModelUpdateEvent() {
-        int ZER0_VALUE = 0;
         if (runGame) {
             robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
@@ -112,11 +116,19 @@ public class GameVisualizer extends JPanel {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
 
+    private AffineTransform getAffineTransform(double tx, double ty, double angle){
+        AffineTransform t = new AffineTransform();
+        t.translate(tx,ty);
+        t.rotate(angle);
+        t.scale(zoomLevel, zoomLevel);
+        t.translate(-tx,-ty);
+        return t;
+    }
+
     private void drawRobot(Graphics2D g, int x, int y, double direction, Color bodyColor) {
         int robotCenterX = round(x);
         int robotCenterY = round(y);
-        AffineTransform t = AffineTransform.getRotateInstance(direction, robotCenterX, robotCenterY);
-        g.setTransform(t);
+        g.setTransform(getAffineTransform(robotCenterX, robotCenterY, direction));
         g.setColor(bodyColor);
         fillOval(g, robotCenterX, robotCenterY, 30, 10);
         g.setColor(Color.BLACK);
@@ -128,8 +140,7 @@ public class GameVisualizer extends JPanel {
     }
 
     private void drawTarget(Graphics2D g, int x, int y) {
-        AffineTransform t = AffineTransform.getRotateInstance(0, 0, 0);
-        g.setTransform(t);
+        g.setTransform(getAffineTransform(0, 0, 0));
         g.setColor(Color.GREEN);
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);
@@ -137,6 +148,7 @@ public class GameVisualizer extends JPanel {
     }
 
     private void drawBush(Graphics2D g, int x, int y) {
+        g.setTransform(getAffineTransform(0, 0, 0));
         Rectangle square = new Rectangle(x, y, 20, 20);
         g.setColor(Color.GREEN);
         g.fill(square);
