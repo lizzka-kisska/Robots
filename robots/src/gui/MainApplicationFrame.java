@@ -127,7 +127,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
 
     private void createTimerWindow() {
         timerWindow = new TimerWindow();
-        gameWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        timerWindow.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
         timerWindow.addInternalFrameListener(savingDataAdapter);
         timerWindow.addComponentListener(savingDataAdapter);

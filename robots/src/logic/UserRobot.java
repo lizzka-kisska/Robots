@@ -8,6 +8,7 @@ public class UserRobot implements MovingRobot {
     public volatile double direction;
     public volatile int xOffset;
     public volatile int yOffset;
+    public volatile boolean isVisible;
 
     public UserRobot(double userRobotXCoordinate, double userRobotYCoordinate, double userRobotDirection) {
         this.xCoordinate = userRobotXCoordinate;

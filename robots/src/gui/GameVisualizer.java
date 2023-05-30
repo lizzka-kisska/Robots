@@ -60,14 +60,17 @@ public class GameVisualizer extends JPanel {
             robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
             if (userRobot.isInsideBush(bush.xCoordinate, bush.yCoordinate)) {
-                userRobot.xOffset = ZER0_VALUE;
-                userRobot.yOffset = ZER0_VALUE;
+                userRobot.isVisible = false;
+                userRobot.xOffset = UserRobotOffset.HALT.getXOffset();
+                userRobot.yOffset = UserRobotOffset.HALT.getYOffset();
+            } else {
+                userRobot.isVisible = true;
             }
             if (userRobot.reachedTarget(target.xCoordinate, target.yCoordinate)) {
                 target.updateTargetPosition(getWidth(), getHeight());
                 repaint();
             }
-            if (userRobot.xOffset != ZER0_VALUE || userRobot.yOffset != ZER0_VALUE) {
+            if (userRobot.isVisible) {
                 checkDistance();
             }
         }

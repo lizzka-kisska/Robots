@@ -17,8 +17,10 @@ public class TimerToEndGame {
         }
         int ONE_SECOND_IN_MS = 1000;
         int THREE_SECONDS_IN_MS = 3000;
-        MainApplicationFrame.timerWindow.setTime(
-                Long.toString((THREE_SECONDS_IN_MS - (System.currentTimeMillis() - startTime)) / ONE_SECOND_IN_MS));
+        if (MainApplicationFrame.timerWindow != null) {
+            MainApplicationFrame.timerWindow.setTime(
+                    Long.toString((THREE_SECONDS_IN_MS - (System.currentTimeMillis() - startTime)) / ONE_SECOND_IN_MS));
+        }
         if (System.currentTimeMillis() - startTime >= THREE_SECONDS_IN_MS) {
             MainApplicationFrame.timerWindow.setText("LOSE");
             GameVisualizer.runGame = false;
