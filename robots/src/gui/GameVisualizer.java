@@ -47,7 +47,9 @@ public class GameVisualizer extends JPanel {
                 if (e.getKeyChar() == '='){
                     zoomLevel += 0.1;
                 } else if (e.getKeyChar() == '-') {
-                    zoomLevel -= 0.1;
+                    if (zoomLevel - 0.1 >= 1){
+                        zoomLevel -= 0.1;
+                    }
                 } else userRobot.changeDirection(e);
                 repaint();
             }
@@ -102,6 +104,7 @@ public class GameVisualizer extends JPanel {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+        setZoomLevel(g2d, userRobot.xCoordinate, userRobot.yCoordinate);
         drawRobot(g2d, round(robot.xCoordinate), round(robot.yCoordinate), robot.direction, Color.RED);
         drawRobot(g2d, round(userRobot.xCoordinate), round(userRobot.yCoordinate), userRobot.direction, Color.CYAN);
         drawTarget(g2d, target.xCoordinate, target.yCoordinate);
@@ -116,31 +119,31 @@ public class GameVisualizer extends JPanel {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
 
-    private AffineTransform getAffineTransform(double tx, double ty, double angle){
+    private void setZoomLevel(Graphics2D g, double tx, double ty){
         AffineTransform t = new AffineTransform();
         t.translate(tx,ty);
-        t.rotate(angle);
         t.scale(zoomLevel, zoomLevel);
         t.translate(-tx,-ty);
-        return t;
+        g.setTransform(t);
     }
 
     private void drawRobot(Graphics2D g, int x, int y, double direction, Color bodyColor) {
         int robotCenterX = round(x);
         int robotCenterY = round(y);
-        g.setTransform(getAffineTransform(robotCenterX, robotCenterY, direction));
-        g.setColor(bodyColor);
-        fillOval(g, robotCenterX, robotCenterY, 30, 10);
-        g.setColor(Color.BLACK);
-        drawOval(g, robotCenterX, robotCenterY, 30, 10);
-        g.setColor(Color.WHITE);
-        fillOval(g, robotCenterX + 10, robotCenterY, 5, 5);
-        g.setColor(Color.BLACK);
-        drawOval(g, robotCenterX + 10, robotCenterY, 5, 5);
+        Graphics2D graphics2D = (Graphics2D) g.create();
+        graphics2D.rotate(direction, robotCenterX, robotCenterY);
+        graphics2D.setColor(bodyColor);
+        fillOval(graphics2D, robotCenterX, robotCenterY, 30, 10);
+        graphics2D.setColor(Color.BLACK);
+        drawOval(graphics2D, robotCenterX, robotCenterY, 30, 10);
+        graphics2D.setColor(Color.WHITE);
+        fillOval(graphics2D, robotCenterX + 10, robotCenterY, 5, 5);
+        graphics2D.setColor(Color.BLACK);
+        drawOval(graphics2D, robotCenterX + 10, robotCenterY, 5, 5);
+        graphics2D.dispose();
     }
 
     private void drawTarget(Graphics2D g, int x, int y) {
-        g.setTransform(getAffineTransform(0, 0, 0));
         g.setColor(Color.GREEN);
         fillOval(g, x, y, 5, 5);
         g.setColor(Color.BLACK);
@@ -148,7 +151,6 @@ public class GameVisualizer extends JPanel {
     }
 
     private void drawBush(Graphics2D g, int x, int y) {
-        g.setTransform(getAffineTransform(0, 0, 0));
         Rectangle square = new Rectangle(x, y, 20, 20);
         g.setColor(Color.GREEN);
         g.fill(square);
