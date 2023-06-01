@@ -1,10 +1,8 @@
 package gui;
 
-import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
 import java.util.Locale;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,7 +14,7 @@ import localization.ControlLang;
 import log.Logger;
 import saving.SavingData;
 
-public class MainApplicationFrame extends JFrame implements PropertyChangeListener {
+public class MainApplicationFrame extends JFrame implements PropertyChangeListener, RestoreWindowsState {
     private final JDesktopPane desktopPane = new JDesktopPane();
     private LogWindow logWindow;
     private GameWindow gameWindow;
@@ -25,7 +23,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
      * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
      */
     private final ControlLang control = ControlLang.getInstance();
-    private static final SavingData savingData = SavingData.getInstance();
+    static final SavingData savingData = SavingData.getInstance();
     private static Locale currentLang = savingData.localeState().getPreferredLocale();
     /**
      * Поля методов, в которых используется локаль
@@ -95,34 +93,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         logWindow.addInternalFrameListener(internalFrameClosingAdapter);
         logWindow.addInternalFrameListener(savingDataAdapter);
         logWindow.addComponentListener(savingDataAdapter);
-        restoreLogWindowState();
-    }
-
-    private void restoreLogWindowState() {
-        logWindow.setLocation(savingData.windowState().getWindowXCoordinate(logWindow),
-                savingData.windowState().getWindowYCoordinate(logWindow));
-        logWindow.setSize(savingData.windowState().getWindowWidth(logWindow),
-                savingData.windowState().getWindowHeight(logWindow));
-        switch (savingData.windowState().getWindowState(logWindow)) {
-            case "closed" -> logWindow.setVisible(false);
-            case "opened" -> logWindow.setVisible(true);
-        }
-        switch (savingData.windowState().getWindowView(logWindow)) {
-            case "iconified" -> {
-                try {
-                    logWindow.setIcon(true);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-            case "deiconified" -> {
-                try {
-                    logWindow.setIcon(false);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-        }
+        restoreWindowState(logWindow);
     }
 
     private void createTimerWindow() {
@@ -131,34 +102,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         timerWindow.addInternalFrameListener(internalFrameClosingAdapter);
         timerWindow.addInternalFrameListener(savingDataAdapter);
         timerWindow.addComponentListener(savingDataAdapter);
-        restoreTimerWindowState();
-    }
-
-    public void restoreTimerWindowState() {
-        timerWindow.setLocation(savingData.windowState().getWindowXCoordinate(timerWindow),
-                savingData.windowState().getWindowYCoordinate(timerWindow));
-        timerWindow.setSize(savingData.windowState().getWindowWidth(timerWindow),
-                savingData.windowState().getWindowHeight(timerWindow));
-        switch (savingData.windowState().getWindowState(timerWindow)) {
-            case "closed" -> timerWindow.setVisible(false);
-            case "opened" -> timerWindow.setVisible(true);
-        }
-        switch (savingData.windowState().getWindowView(timerWindow)) {
-            case "iconified" -> {
-                try {
-                    timerWindow.setIcon(true);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-            case "deiconified" -> {
-                try {
-                    timerWindow.setIcon(false);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-        }
+        restoreWindowState(timerWindow);
     }
 
     private void createGameWindow() {
@@ -167,34 +111,7 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         gameWindow.addInternalFrameListener(internalFrameClosingAdapter);
         gameWindow.addInternalFrameListener(savingDataAdapter);
         gameWindow.addComponentListener(savingDataAdapter);
-        restoreGameWindowState();
-    }
-
-    private void restoreGameWindowState() {
-        gameWindow.setLocation(savingData.windowState().getWindowXCoordinate(gameWindow),
-                savingData.windowState().getWindowYCoordinate(gameWindow));
-        gameWindow.setSize(savingData.windowState().getWindowWidth(gameWindow),
-                savingData.windowState().getWindowHeight(gameWindow));
-        switch (savingData.windowState().getWindowState(gameWindow)) {
-            case "closed" -> gameWindow.setVisible(false);
-            case "opened" -> gameWindow.setVisible(true);
-        }
-        switch (savingData.windowState().getWindowView(gameWindow)) {
-            case "iconified" -> {
-                try {
-                    gameWindow.setIcon(true);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-            case "deiconified" -> {
-                try {
-                    gameWindow.setIcon(false);
-                } catch (PropertyVetoException e) {
-                    Logger.debug(e.toString());
-                }
-            }
-        }
+        restoreWindowState(gameWindow);
     }
 
     private void addWindow(JInternalFrame frame) {
