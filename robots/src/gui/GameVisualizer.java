@@ -16,7 +16,7 @@ public class GameVisualizer extends JPanel {
     Target target = new Target();
     UserRobot userRobot = new UserRobot(150, 150, 0);
     Bush bush = new Bush();
-    TimerToEndGame timerToEndGame = new TimerToEndGame();
+    GameLogic gameLogic = new GameLogic();
     private Timer m_timer = initTimer();
     public static boolean runGame = true;
     private double zoomLevel = 1;
@@ -65,35 +65,13 @@ public class GameVisualizer extends JPanel {
         if (runGame) {
             robot.moveRobot(getWidth(), getHeight());
             userRobot.moveUserRobot(getWidth(), getHeight());
-            if (userRobot.isInsideBush(bush.xCoordinate, bush.yCoordinate)) {
-                userRobot.isVisible = false;
-                userRobot.xOffset = UserRobotOffset.HALT.getXOffset();
-                userRobot.yOffset = UserRobotOffset.HALT.getYOffset();
-            } else {
-                userRobot.isVisible = true;
-            }
+            gameLogic.checkPositionRelativeToBush(userRobot, bush);
             if (userRobot.reachedTarget(target.xCoordinate, target.yCoordinate)) {
                 target.updateTargetPosition(getWidth(), getHeight());
                 repaint();
             }
-            if (userRobot.isVisible) {
-                checkDistance();
-            }
+            gameLogic.checkDistance(robot, userRobot);
         }
-    }
-
-    protected void checkDistance() {
-        int RADIUS = 100;
-        if (distance(robot.xCoordinate, userRobot.xCoordinate, robot.yCoordinate, userRobot.yCoordinate) <= RADIUS) {
-            timerToEndGame.startAndRunTimer();
-        } else {
-            timerToEndGame.stopTimer();
-        }
-    }
-
-    private double distance(double x1, double x2, double y1, double y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2)
-                + Math.pow(y2 - y1, 2));
     }
 
     private static int round(double value) {
