@@ -1,32 +1,42 @@
 package logic;
 
+import java.util.Observable;
 import java.util.Random;
-import java.util.function.DoubleUnaryOperator;
 
-public class Robot implements MovingRobot {
+public class Robot extends Observable implements MovingRobot {
+    public static String KEY_COORDS_CHANGED;
     public final double maxVelocity = 0.1;
     public final double maxAngularVelocity = 0.001;
     public final double duration = 10;
     public volatile double xCoordinate;
     public volatile double yCoordinate;
     public volatile double direction;
+    public volatile double distanceToTarget;
     public double angle = 0;
     public double velocity = maxVelocity;
     public double angularVelocity = 0;
     public double angleToNextXY = 0;
     private static final int ZERO_VALUE = 0;
     private static final Random random = new Random();
+    private static final Robot robot = new Robot();
 
-    public Robot(double robotXCoordinate, double robotYCoordinate, double robotDirection) {
-        this.xCoordinate = robotXCoordinate;
-        this.yCoordinate = robotYCoordinate;
-        this.direction = robotDirection;
+    public Robot() {
+    }
+
+    public static Robot getInstance() {
+        return robot;
     }
 
     public double getAngleToNextXY(double nextX, double nextY) {
         double diffX = nextX - xCoordinate;
         double diffY = nextY - yCoordinate;
         return asNormalizedRadians(Math.atan2(diffY, diffX));
+    }
+
+    private double distanceTo() {
+        double diffX = Target.getInstance().getX() - xCoordinate;
+        double diffY = Target.getInstance().getY() - yCoordinate;
+        return Math.sqrt(diffX * diffX + diffY * diffY);
     }
 
     public double asNormalizedRadians(double angle) {
@@ -61,6 +71,7 @@ public class Robot implements MovingRobot {
 
     public void moveRobot(int width, int height) {
         if (width != ZERO_VALUE || height != ZERO_VALUE) {
+            distanceToTarget = distanceTo();
             int nextX = getNextX(width);
             int nextY = getNextY(height);
             updateAngle(nextX, nextY);
@@ -82,6 +93,9 @@ public class Robot implements MovingRobot {
         }
         xCoordinate = newXCoordinate;
         yCoordinate = newYCoordinate;
+        setChanged();
+        notifyObservers(KEY_COORDS_CHANGED);
+        clearChanged();
     }
 
     private void updateDirection() {

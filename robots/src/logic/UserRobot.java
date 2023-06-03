@@ -1,19 +1,26 @@
 package logic;
 
 import java.awt.event.KeyEvent;
+import java.util.Observable;
 
-public class UserRobot implements MovingRobot {
+public class UserRobot extends Observable implements MovingRobot {
+    public static String KEY_COORDS_CHANGED;
+    public static String KEY_DISTANCE_CHANGED;
     public volatile double xCoordinate;
     public volatile double yCoordinate;
     public volatile double direction;
     public volatile int xOffset;
     public volatile int yOffset;
     public volatile boolean isVisible;
+    public volatile double distanceToTarget;
+    private static final UserRobot userRobot = new UserRobot();
 
-    public UserRobot(double userRobotXCoordinate, double userRobotYCoordinate, double userRobotDirection) {
-        this.xCoordinate = userRobotXCoordinate;
-        this.yCoordinate = userRobotYCoordinate;
-        this.direction = userRobotDirection;
+
+    public UserRobot() {
+    }
+
+    public static UserRobot getInstance() {
+        return userRobot;
     }
 
     public void changeDirection(KeyEvent e) {
@@ -53,7 +60,11 @@ public class UserRobot implements MovingRobot {
 
     public boolean reachedTarget(int targetX, int targetY) {
         int MINIMUM_DISTANCE = 6;
-        return distanceTo(targetX, targetY) < MINIMUM_DISTANCE;
+        distanceToTarget = distanceTo(targetX, targetY);
+        setChanged();
+        notifyObservers(KEY_DISTANCE_CHANGED);
+        clearChanged();
+        return distanceToTarget < MINIMUM_DISTANCE;
     }
 
     private void updateCoordinates(int width, int height) {
@@ -68,6 +79,9 @@ public class UserRobot implements MovingRobot {
         }
         xCoordinate = newXCoordinate;
         yCoordinate = newYCoordinate;
+        setChanged();
+        notifyObservers(KEY_COORDS_CHANGED);
+        clearChanged();
     }
 
     public boolean isInsideBush(int bushX, int bushY) {

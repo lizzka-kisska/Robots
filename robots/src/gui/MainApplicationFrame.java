@@ -7,11 +7,11 @@ import java.util.Locale;
 import java.awt.event.*;
 import javax.swing.*;
 
-import gui.internalframes.GameWindow;
-import gui.internalframes.LogWindow;
-import gui.internalframes.TimerWindow;
+import gui.internalframes.*;
 import localization.ControlLang;
 import log.Logger;
+import logic.Robot;
+import logic.UserRobot;
 import saving.SavingData;
 
 public class MainApplicationFrame extends JFrame implements PropertyChangeListener, RestoreWindowsState {
@@ -19,6 +19,8 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
     private LogWindow logWindow;
     private GameWindow gameWindow;
     public static TimerWindow timerWindow;
+    public static RobotsCoordinates robotCoordinates;
+    public static RobotsDistanceToTarget robotsDistanceToTarget;
     /**
      * @value Класс, контролирующий выбранную локаль, присваивает существующий класс ControlLang.
      */
@@ -68,13 +70,19 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
                     savingData.windowState().setDefaultGameWindowState();
                     savingData.windowState().setDefaultLogWindowState();
                     savingData.windowState().setDefaultTimerWindowState();
+                    savingData.windowState().setDefaultRobotsCoordinatesState();
+                    savingData.windowState().setDefaultRobotsDistanceToTargetState();
                 }
                 createGameWindow();
-                createTimerWindow();
                 createLogWindow(control.getLocale("FRAME_WORKING_PROTOCOL"));
-                addWindow(timerWindow);
+                createTimerWindow();
+                createRobotsCoordinatesWindow();
+                createRobotsDistanceToTargetWindow();
                 addWindow(logWindow);
                 addWindow(gameWindow);
+                addWindow(timerWindow);
+                addWindow(robotCoordinates);
+                addWindow(robotsDistanceToTarget);
                 createMainFrame();
             }
         });
@@ -112,6 +120,24 @@ public class MainApplicationFrame extends JFrame implements PropertyChangeListen
         gameWindow.addInternalFrameListener(savingDataAdapter);
         gameWindow.addComponentListener(savingDataAdapter);
         restoreWindowState(gameWindow);
+    }
+
+    private void createRobotsCoordinatesWindow() {
+        robotCoordinates = new RobotsCoordinates(UserRobot.getInstance(), Robot.getInstance());
+        robotCoordinates.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        robotCoordinates.addInternalFrameListener(internalFrameClosingAdapter);
+        robotCoordinates.addInternalFrameListener(savingDataAdapter);
+        robotCoordinates.addComponentListener(savingDataAdapter);
+        restoreWindowState(robotCoordinates);
+    }
+
+    private void createRobotsDistanceToTargetWindow() {
+        robotsDistanceToTarget = new RobotsDistanceToTarget(UserRobot.getInstance(), Robot.getInstance());
+        robotsDistanceToTarget.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        robotsDistanceToTarget.addInternalFrameListener(internalFrameClosingAdapter);
+        robotsDistanceToTarget.addInternalFrameListener(savingDataAdapter);
+        robotsDistanceToTarget.addComponentListener(savingDataAdapter);
+        restoreWindowState(robotsDistanceToTarget);
     }
 
     private void addWindow(JInternalFrame frame) {

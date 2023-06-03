@@ -12,9 +12,9 @@ import java.util.TimerTask;
 import javax.swing.*;
 
 public class GameVisualizer extends JPanel {
-    Robot robot = new Robot(100, 100, 0);
-    Target target = new Target();
-    UserRobot userRobot = new UserRobot(150, 150, 0);
+    Robot robot = Robot.getInstance();
+    Target target = Target.getInstance();
+    UserRobot userRobot = UserRobot.getInstance();
     Bush bush = new Bush();
     GameLogic gameLogic = new GameLogic();
     private Timer m_timer = initTimer();
@@ -44,10 +44,10 @@ public class GameVisualizer extends JPanel {
             @Override
             public void keyPressed(KeyEvent e) {
                 super.keyPressed(e);
-                if (e.getKeyChar() == '='){
+                if (e.getKeyChar() == '=') {
                     zoomLevel += 0.1;
                 } else if (e.getKeyChar() == '-') {
-                    if (zoomLevel - 0.1 >= 1){
+                    if (zoomLevel - 0.1 >= 1) {
                         zoomLevel -= 0.1;
                     }
                 } else userRobot.changeDirection(e);
@@ -97,11 +97,11 @@ public class GameVisualizer extends JPanel {
         g.drawOval(centerX - diam1 / 2, centerY - diam2 / 2, diam1, diam2);
     }
 
-    private void setZoomLevel(Graphics2D g, double tx, double ty){
+    private void setZoomLevel(Graphics2D g, double tx, double ty) {
         AffineTransform t = new AffineTransform();
-        t.translate(tx,ty);
+        t.translate(tx, ty);
         t.scale(zoomLevel, zoomLevel);
-        t.translate(-tx,-ty);
+        t.translate(-tx, -ty);
         g.setTransform(t);
     }
 

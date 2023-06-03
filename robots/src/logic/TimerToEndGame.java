@@ -29,7 +29,9 @@ public class TimerToEndGame {
     }
 
     public void stopTimer() {
-        needTime = true;
-        MainApplicationFrame.timerWindow.setText("HYPE");
+        if (MainApplicationFrame.timerWindow != null) {
+            needTime = true;
+            MainApplicationFrame.timerWindow.setText("HYPE");
+        }
     }
 }
